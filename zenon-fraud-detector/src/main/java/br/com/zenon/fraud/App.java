@@ -1,14 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- */
 package br.com.zenon.fraud;
 
 import br.com.zenon.fraud.enums.TransactionType;
 
-/**
- *
- * @author leand
- */
 class App {
 
     void main() {
@@ -32,4 +25,5 @@ class App {
         IO.println("First Transaction:" + transaction1);
         IO.println("Seconde Transaction:" + transaction2);
     }
+    
 }
