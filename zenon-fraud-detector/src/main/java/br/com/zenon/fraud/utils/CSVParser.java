@@ -87,6 +87,7 @@ public class CSVParser {
         }
         if (errorCount > 0) {
             System.err.println(errorCount);
+            IO.println("---------------");
         }
         return transactions;
     }
