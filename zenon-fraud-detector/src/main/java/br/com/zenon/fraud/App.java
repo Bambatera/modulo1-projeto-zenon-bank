@@ -11,7 +11,7 @@ class App {
         TransactionIngestor ingestor = new TransactionIngestor(path);
         List<Transaction> transactions = ingestor.getTransationsList();
         FraudAnalyzer analyzer = new FraudAnalyzer(transactions);
-        analyzer.getListOfFrauds().stream().forEach(f -> IO.println(f));
+        analyzer.printFrauds();
     }
 
 }

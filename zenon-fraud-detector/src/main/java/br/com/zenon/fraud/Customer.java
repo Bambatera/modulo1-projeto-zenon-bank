@@ -1,5 +1,7 @@
 package br.com.zenon.fraud;
 
-public record Customer(String name, double oldBalance, double newBalance) {
+import java.math.BigDecimal;
+
+public record Customer(String name, BigDecimal oldBalance, BigDecimal newBalance) {
 
 }

@@ -3,6 +3,7 @@ package br.com.zenon.fraud.utils;
 import br.com.zenon.fraud.Customer;
 import br.com.zenon.fraud.Transaction;
 import br.com.zenon.fraud.enums.TransactionType;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -20,9 +21,9 @@ public class CSVParser {
                 try {
                     int step = getStepValue(contentLine[0]);
                     TransactionType type = getTypeValue(contentLine[1]);
-                    double amount = 0;
+                    BigDecimal amount = BigDecimal.ZERO;
                     try {
-                        amount = getDoubleContentValue(contentLine[2]);
+                        amount = getBigDecimalContentValue(contentLine[2]);
                     } catch (IllegalArgumentException e) {
                         throw new IllegalArgumentException("'amount' " + e.getMessage());
                     }
@@ -33,16 +34,16 @@ public class CSVParser {
                         throw new IllegalArgumentException("'nameOrig' must have a value!");
                     }
 
-                    double oldBalanceOrig = 0;
+                    BigDecimal oldBalanceOrig = BigDecimal.ZERO;
                     try {
-                        oldBalanceOrig = getDoubleContentValue(contentLine[4]);
+                        oldBalanceOrig = getBigDecimalContentValue(contentLine[4]);
                     } catch (IllegalArgumentException e) {
                         throw new IllegalArgumentException("'oldBalanceOrig' " + e.getMessage());
                     }
 
-                    double newBalanceOrig = 0;
+                    BigDecimal newBalanceOrig = BigDecimal.ZERO;
                     try {
-                        newBalanceOrig = getDoubleContentValue(contentLine[5]);
+                        newBalanceOrig = getBigDecimalContentValue(contentLine[5]);
                     } catch (IllegalArgumentException e) {
                         throw new IllegalArgumentException("'newBalanceOrig' " + e.getMessage());
                     }
@@ -55,16 +56,16 @@ public class CSVParser {
                         throw new IllegalArgumentException("'nameDest' must have a value!");
                     }
 
-                    double oldBalanceDest = 0;
+                    BigDecimal oldBalanceDest = BigDecimal.ZERO;
                     try {
-                        oldBalanceDest = getDoubleContentValue(contentLine[7]);
+                        oldBalanceDest = getBigDecimalContentValue(contentLine[7]);
                     } catch (IllegalArgumentException e) {
                         throw new IllegalArgumentException("'oldBalanceDest' " + e.getMessage());
                     }
 
-                    double newBalanceDest = 0;
+                    BigDecimal newBalanceDest = BigDecimal.ZERO;
                     try {
-                        newBalanceDest = getDoubleContentValue(contentLine[8]);
+                        newBalanceDest = getBigDecimalContentValue(contentLine[8]);
                     } catch (IllegalArgumentException e) {
                         throw new IllegalArgumentException("'newBalanceDest' " + e.getMessage());
                     }
@@ -144,27 +145,27 @@ public class CSVParser {
     }
 
     /**
-     * Obtém o valor <i>double</i> do conteúdo informado e realiza as validações
-     * necessárias para o preenchimento correto da variável.
+     * Obtém o valor <i>BigDecimal</i> do conteúdo informado e realiza as
+     * validações necessárias para o preenchimento correto da variável.
      *
      * @param content Conteúdo a ser verificado e obtido o valor.
-     * @return Valor <i>double</i> do conteúdo.
+     * @return Valor <i>BigDecimal</i> do conteúdo.
      * @throws IllegalArgumentException Será retornado caso alguma
      * inconsistência seja detectada.
      */
-    private static double getDoubleContentValue(String content) throws IllegalArgumentException {
-        double dblContent;
+    private static BigDecimal getBigDecimalContentValue(String content) throws IllegalArgumentException {
+        BigDecimal bdcContent;
         String contentValue = Optional.ofNullable(content)
                 .orElseThrow(() -> new IllegalArgumentException("must have a value!"));
         try {
-            dblContent = Double.parseDouble(contentValue);
+            bdcContent = new BigDecimal(contentValue);
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("must be a number: " + contentValue);
         }
-        if (dblContent < 0) {
-            throw new IllegalArgumentException(" must be a positive number: " + dblContent);
+        if (bdcContent.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException(" must be a positive number: " + bdcContent);
         }
-        return dblContent;
+        return bdcContent;
     }
 
     /**
