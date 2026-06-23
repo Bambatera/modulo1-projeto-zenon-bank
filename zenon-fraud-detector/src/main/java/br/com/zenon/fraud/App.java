@@ -1,17 +1,37 @@
 package br.com.zenon.fraud;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
+import java.util.Objects;
+import java.util.Scanner;
 
 class App {
 
+    private TransactionRepositoryListImpl listRepo = new TransactionRepositoryListImpl();
+    private TransactionRepositoryMapImpl mapRepo = new TransactionRepositoryMapImpl();
+
     void main() {
-        Path path = Paths.get("C:/Users/leand/Develop/Workspaces/Projects/Estudos/Cursos/JavaElite/Modulo_01/modulo1-projeto-zenon-bank/data/PS_20174392719_1491204439457_log.csv");
-        TransactionIngestor ingestor = new TransactionIngestor(path);
-        List<Transaction> transactions = ingestor.getTransationsList();
-        FraudAnalyzer analyzer = new FraudAnalyzer(transactions);
-        analyzer.printFrauds();
+        Scanner scanner = new Scanner(System.in);
+        IO.print("Informe o nome a ser pesquisado: ");
+        String name = scanner.nextLine();
+        
+        try {
+            Transaction transaction = this.listRepo.findByOriginCustomerName(name)
+                    .orElseThrow(() -> new RuntimeException("Transação não encontrada para o cliente " + name + "!"));
+            IO.println(transaction);
+            IO.println("-------------------------------------------------------------");
+        } catch (RuntimeException e) {
+            IO.println(e.getMessage());
+        }
+        
+        try {
+            Transaction transaction = this.mapRepo.findByOriginCustomerName(name)
+                    .orElseThrow(() -> new RuntimeException("Transação não encontrada para o cliente " + name + "!"));
+            if (!Objects.isNull(transaction)) {
+                IO.println(transaction);
+            }
+            IO.println("-------------------------------------------------------------");
+        } catch (RuntimeException e) {
+            IO.println(e.getMessage());
+        }
     }
 
 }

@@ -5,11 +5,18 @@ import br.com.zenon.fraud.Transaction;
 import br.com.zenon.fraud.enums.TransactionType;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class CSVParser {
 
+    /**
+     * 
+     * @param fileContent
+     * @return 
+     */
     public static List<Transaction> contentParser(List<String> fileContent) {
         List<Transaction> transactions = new ArrayList<>();
         int errorCount = 0;
@@ -91,6 +98,94 @@ public class CSVParser {
             IO.println("---------------");
         }
         return transactions;
+    }
+
+    /**
+     *
+     * @param fileContent
+     * @return
+     */
+    public static Map<String, Transaction> contentParserToMap(List<String> fileContent) {
+        Map<String, Transaction> mapContent = new HashMap<>();
+        int errorCount = 0;
+        for (String cnt : fileContent) {
+            String[] lines = cnt.split("\n");
+            for (String line : lines) {
+                String[] contentLine = line.split(",");
+
+                try {
+                    int step = getStepValue(contentLine[0]);
+                    TransactionType type = getTypeValue(contentLine[1]);
+                    BigDecimal amount = BigDecimal.ZERO;
+                    try {
+                        amount = getBigDecimalContentValue(contentLine[2]);
+                    } catch (IllegalArgumentException e) {
+                        throw new IllegalArgumentException("'amount' " + e.getMessage());
+                    }
+
+                    String nameOrig = Optional.ofNullable(contentLine[3])
+                            .orElseThrow(() -> new IllegalArgumentException("'nameOrig' must have a value!"));
+                    if (nameOrig.trim().isEmpty()) {
+                        throw new IllegalArgumentException("'nameOrig' must have a value!");
+                    }
+
+                    BigDecimal oldBalanceOrig = BigDecimal.ZERO;
+                    try {
+                        oldBalanceOrig = getBigDecimalContentValue(contentLine[4]);
+                    } catch (IllegalArgumentException e) {
+                        throw new IllegalArgumentException("'oldBalanceOrig' " + e.getMessage());
+                    }
+
+                    BigDecimal newBalanceOrig = BigDecimal.ZERO;
+                    try {
+                        newBalanceOrig = getBigDecimalContentValue(contentLine[5]);
+                    } catch (IllegalArgumentException e) {
+                        throw new IllegalArgumentException("'newBalanceOrig' " + e.getMessage());
+                    }
+
+                    Customer originCustomer = new Customer(nameOrig, oldBalanceOrig, newBalanceOrig);
+
+                    String nameDest = Optional.ofNullable(contentLine[6])
+                            .orElseThrow(() -> new IllegalArgumentException("'nameDest' must have a value!"));
+                    if (nameDest.trim().isEmpty()) {
+                        throw new IllegalArgumentException("'nameDest' must have a value!");
+                    }
+
+                    BigDecimal oldBalanceDest = BigDecimal.ZERO;
+                    try {
+                        oldBalanceDest = getBigDecimalContentValue(contentLine[7]);
+                    } catch (IllegalArgumentException e) {
+                        throw new IllegalArgumentException("'oldBalanceDest' " + e.getMessage());
+                    }
+
+                    BigDecimal newBalanceDest = BigDecimal.ZERO;
+                    try {
+                        newBalanceDest = getBigDecimalContentValue(contentLine[8]);
+                    } catch (IllegalArgumentException e) {
+                        throw new IllegalArgumentException("'newBalanceDest' " + e.getMessage());
+                    }
+
+                    Customer destinationCustomer = new Customer(nameDest, oldBalanceDest, newBalanceDest);
+
+                    boolean isFraud = getBooleanValue(contentLine[9]);
+                    boolean isFlaggedFraud = getBooleanValue(contentLine[10]);
+
+                    Transaction transaction = new Transaction(step, type, amount, originCustomer, destinationCustomer, isFraud, isFlaggedFraud);
+                    mapContent.put(originCustomer.name(), transaction);
+                } catch (NumberFormatException ex) {
+                    System.err.println("Error: " + line + "|" + ex.getClass().getName() + ": " + ex.getMessage());
+                    errorCount++;
+                } catch (IllegalArgumentException ex) {
+                    System.err.println("Error: " + line + "|" + ex.getClass().getName() + ": " + ex.getMessage());
+                    errorCount++;
+                }
+            }
+        }
+        if (errorCount > 0) {
+            System.err.println(errorCount);
+            IO.println("---------------");
+        }
+        return mapContent;
     }
 
     /**
